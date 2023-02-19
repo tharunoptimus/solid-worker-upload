@@ -2,8 +2,8 @@ import { del, get, set } from "idb-keyval" // For IndexedDB
 
 // if you have an API running locally with https://github.com/tharunoptimus-pd/simple-server
 // uncomment the below line and comment the next line
-let SERVER_API = `http://localhost:3003/api/upload/file` 
-// let SERVER_API = `https://simple-server-3xmu.onrender.com/api/upload/file`
+// let SERVER_API = `http://localhost:3003/api/upload/file` 
+let SERVER_API = `https://simple-server-3xmu.onrender.com/api/upload/file`
 
 
 interface SyncManager {
