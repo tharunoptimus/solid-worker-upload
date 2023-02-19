@@ -30,7 +30,7 @@ If you look at vite.config.js, you can see that I've use rollupOptions that stor
 - `src/sw/workerHandlerSW.ts`
 
 ### Main Thread
-- The APIStatus component checks for the status of the API endpoint. If the API is not available, it will show a message to the user.
+- The APIStatus component checks for the status of the API endpoint. If the API is not available, it will show a message to the user. It also asks user to allow notifications.
 - The UploadButton component will render the button that says "Upload". When clicked, it opens the explorer for the file and then it will register a service worker (`workerHandlerSW.ts`) and spawns a web worker that will upload the file.
 - The Progress components will open a broadcast channel with the tag `workerChannel` and will listen for messages from the worker. It will update the UI accordingly.
 
@@ -42,7 +42,7 @@ If you look at vite.config.js, you can see that I've use rollupOptions that stor
 
 
 ### Service Worker
-Usually service workers are placed at the root, but if we placed this specific service at the root, the XHR request will pass through the `fetch` event handler of the service worker and the usage of `XHR` will be useless. So, we placed it in a different folder and registered it with the scope of that folder.
+Usually service workers are placed at the root, but if we placed this specific service at the root, the XHR request will pass through the `fetch` event handler of the service worker and the usage of `XHR` will be useless. So, we placed it in a different folder and registered it with the scope of that folder. It also comes with its new set of problems. It has the possibility of "stopping" all of a sudden for no apparent reason because there is no clients at `/serviceworker/`. If you wish to not see that happenning, you should register the service worker in the global scope(`/`). But it will not allow worker to show progress because the service worker will handle the upload rather than the worker so it's a tradeoff.
 - It opens a broadcast channel with the tag `workerChannel` and will listen for messages from everywhere.
 - When it receives a "retry" type message from the `workerChannel` it will register a `sync` event with the tag `retryUpload` and will wait for the network to be back online.
 - When the network is back online, it will request the worker to retry the upload with the help of a heartbeat request. If the worker receives it, will change the entry in IndexedDB that the service worker is currently watching. So when it changes, it guesses that the worker is online and will ask it to retry the upload. (This is assuming the user is still on the page or the tab is in the background and the browser did not kill the worker thread)
@@ -57,3 +57,5 @@ Usually service workers are placed at the root, but if we placed this specific s
 4. Web Workers can communicate with the main thread using `postMessage()` and `onmessage` event listener but it can be limiting, so we can use `BroadcastChannel` API to communicate with the main thread and other web workers.
 5. If you want to resolve some problems with TypeScript, you might want to include "WebWorker" in the `lib` array in your `tsconfig.json` file. Like this:
 `"lib": ["ESNext", "DOM", "WebWorker"],`
+
+**Switching to "OFFLINE" under Network tab in Dev Tools doesn't work with `web workers`. It works sometimes and sometimes it doesn't. So, if you want to emulate it, play with your wifi LOL**
